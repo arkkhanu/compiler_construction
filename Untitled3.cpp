@@ -22,7 +22,7 @@ bool check_keywords(string word) {
 //****************************************************
 //       DataTypes
 //****************************************************
-bool datatype_class(string word)
+bool get_keyword_class(string word)
 {
 	string DT[] = {"int","float","string","char","bool"};
 	for(int i=0;i<6;i++)
@@ -219,7 +219,7 @@ string check_keyword_id_constant(string word)
 		{	
 			return "keyword"; 
 		}
-		else if(datatype_class(word)){
+		else if(get_keyword_class(word)){
 			return "DataTypes";
 		}
 		else if(check_identifiers(word) == 1)
@@ -407,7 +407,7 @@ int main() {
 			{
 				if(check_keywords(word) )
 				{
-					token<<"( "<<datatype_class(word)<<" , "<< word <<" , "<<line_num<<" )\n";
+					token<<"( "<<get_keyword_class(word)<<" , "<< word <<" , "<<line_num<<" )\n";
 					word = "";
 					if(line[i+1] >='0' && line[i+1] <= '9')
 					{
