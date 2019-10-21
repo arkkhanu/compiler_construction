@@ -64,7 +64,7 @@ int check_combine_operators(int side_1,int side_2)
 									   {0,0,0,0,0,0,0,6,0,0,0},
 									   {0,0,0,0,0,4,0,0,0,0,0},
 									   {0,0,0,0,0,4,0,0,0,0,0},
-									   {0,0,0,0,0,2,0,0,0,0,5} };
+									   {0,0,0,0,0,0,0,0,0,0,5} };
 	
 	return combine_operators[side_1][side_2];
 }
@@ -90,7 +90,7 @@ string get_class_of_single_operator(int index)
 bool check_punctuators(char word)
 {
 	char punctuators[] = { '(',')','[',']','{','}',';',':',',' };
-	for (int i = 0; i<10; i++)
+	for (int i = 0; i<9; i++)
 	{
 		if (word == punctuators[i])
 		{
@@ -261,8 +261,12 @@ int main() {
 		cout<<"Enter code : \n";
 		getline(cin,line);  //
 	
-      for (int i = 0; i <= line.length(); i++)
-	  {	
+      for (int i = 0; i < line.length(); i++)
+	  {
+	  
+	  ///////////////////////////////////////////////
+	  ///////////////////////////////////////////////
+	  	
 		if(no_string && read && check_punctuators(line[i]))           
 		{
 			if(word != "")
@@ -272,6 +276,11 @@ int main() {
 			}
 			token<<"( Punctuator , "<< toString(line[i]) <<" , "<<line_num<<" )\n";
 		}
+		
+		//////////////////////////////////////////////////
+		//////////////////////////////////////////////////
+		
+
 		else if(no_string && read && line[i] == '\'')
 		{
 			if(word != "")
@@ -308,6 +317,10 @@ int main() {
 				word="";
 			}
 		}
+		
+		//////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////
+		
 		else if(read && line[i] == '\"')
 		{
 			if(no_string)
@@ -336,6 +349,10 @@ int main() {
 				}
 			}
 		}
+		
+		/////////////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////////////
+		
 		else if(no_string && check_operators(line[i]) !=-1)           
 		{
 			if(read && word != "")
@@ -346,6 +363,7 @@ int main() {
 			int second_opr = check_operators(line[i+1]);
 			if( second_opr != -1)
 			{
+				cout<<check_combine_operators(check_operators(line[i]),second_opr);
 				string class_part = get_class_of_operator(check_combine_operators(check_operators(line[i]),second_opr));
 				if(class_part !="N/A")
 				{
@@ -383,6 +401,8 @@ int main() {
 			}
 			
 		}
+		/////////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////////
 	else if(no_string && read && line[i] == '.')
 		{
 			if(word == "")
@@ -453,6 +473,8 @@ int main() {
 				
 			}	
 		}
+		//////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////
 		else if( (line[i] == ' ' || line[i] == '\t' || line[i] == '\n' || line[i] == '\0'))   
 		{
 			if(no_string && read && word != "")
@@ -470,10 +492,16 @@ int main() {
 				}
 			}
 		}
+		/////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////
 		else           
 		{
 			word += line[i];
 		}
+		
+		////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////
+		
 	  }
 
 	 cout<<"Done!!!";
