@@ -3,6 +3,7 @@
 #include <fstream>
 #include<stdlib.h>
 using namespace std;
+
 //void int main() 'sd'g'
 
 //****************************************************
@@ -22,7 +23,7 @@ bool check_keywords(string word) {
 //****************************************************
 //       DataTypes
 //****************************************************
-bool get_keyword_class(string word)
+bool datatype_class(string word)
 {
 	string DT[] = {"int","float","string","char","bool"};
 	for(int i=0;i<6;i++)
@@ -64,7 +65,7 @@ int check_combine_operators(int side_1,int side_2)
 									   {0,0,0,0,0,0,0,6,0,0,0},
 									   {0,0,0,0,0,4,0,0,0,0,0},
 									   {0,0,0,0,0,4,0,0,0,0,0},
-									   {0,0,0,0,0,2,0,0,0,0,5} };
+									   {0,0,0,0,0,0,0,0,0,0,5} };
 	
 	return combine_operators[side_1][side_2];
 }
@@ -80,7 +81,7 @@ string get_class_of_operator(int index)
 
 string get_class_of_single_operator(int index)   
 {
-	string operator_class[] = {"Add-Sub","Add-Sub","Mul","Div-Mod","Div-Mod","Asgn-Op","Not-Op","Adress-Op","Relat-Op","Relat-Op","invalid"};
+	string operator_class[] = {"Add","Sub","Mul","Div","Div-Mod","Asgn-Op","Not-Op","Adress-Op","Relat-Op","Relat-Op","invalid"};
 	
 	return operator_class[index];
 }
@@ -90,7 +91,7 @@ string get_class_of_single_operator(int index)
 bool check_punctuators(char word)
 {
 	char punctuators[] = { '(',')','[',']','{','}',';',':',',' };
-	for (int i = 0; i<10; i++)
+	for (int i = 0; i<9; i++)
 	{
 		if (word == punctuators[i])
 		{
@@ -219,7 +220,7 @@ string check_keyword_id_constant(string word)
 		{	
 			return "keyword"; 
 		}
-		else if(get_keyword_class(word)){
+		else if(datatype_class(word)){
 			return "DataTypes";
 		}
 		else if(check_identifiers(word) == 1)
@@ -262,7 +263,11 @@ int main() {
 		getline(cin,line);  //
 	
       for (int i = 0; i <= line.length(); i++)
-	  {	
+	  {
+	  
+	  ///////////////////////////////////////////////
+	  ///////////////////////////////////////////////
+	  	
 		if(no_string && read && check_punctuators(line[i]))           
 		{
 			if(word != "")
@@ -272,8 +277,14 @@ int main() {
 			}
 			token<<"( Punctuator , "<< toString(line[i]) <<" , "<<line_num<<" )\n";
 		}
+		
+		//////////////////////////////////////////////////
+		//////////////////////////////////////////////////
+		
+
 		else if(no_string && read && line[i] == '\'')
 		{
+			
 			if(word != "")
 			{
 				token<<"( "<<check_keyword_id_constant(word)<<" , "<< word <<" , "<<line_num<<" )\n";
@@ -281,33 +292,53 @@ int main() {
 			}
 			if(line[i+1] == '\\')
 			{
-				word = line.substr(i,4);
-				if(check_character_constant(word))
-				{
-					token<<"( Character_cons , "<< word <<" , "<<line_num<<" )\n";
-				}
-				else
-				{
+				if(line[i+2] != '\''){
+					word = line.substr(i,4);
+					if(check_character_constant(word))
+					{
+						token<<"( Character_cons , "<< word <<" , "<<line_num<<" )\n";
+					}
+					else
+					{
+						token<<"( L.E , "<< word <<" , "<<line_num<<" )\n";
+					}
+					i+=3;
+					word="";	
+				}else{
 					token<<"( L.E , "<< word <<" , "<<line_num<<" )\n";
+					i+=2;
+					word="";
 				}
-				i+=3;
-				word="";
+				
+				
 			}
 			else
 			{
-				word = line.substr(i,3);
-				if(check_character_constant(word))
-				{
-					token<<"( Character_cons , "<< word <<" , "<<line_num<<" )\n";
-				}
-				else
-				{
+				if(line[i+1] != '\''){
+					word = line.substr(i,3);
+					if(check_character_constant(word))
+					{
+						token<<"( Character_cons , "<< word <<" , "<<line_num<<" )\n";
+					}
+					else
+					{
+						token<<"( L.E , "<< word <<" , "<<line_num<<" )\n";
+					}
+					i+=2;
+					word="";
+					
+				}else{
 					token<<"( L.E , "<< word <<" , "<<line_num<<" )\n";
+					i+=1;
+					word = "";
 				}
-				i+=2;
-				word="";
+				
 			}
 		}
+		
+		//////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////
+		
 		else if(read && line[i] == '\"')
 		{
 			if(no_string)
@@ -336,6 +367,10 @@ int main() {
 				}
 			}
 		}
+		
+		/////////////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////////////
+		
 		else if(no_string && check_operators(line[i]) !=-1)           
 		{
 			if(read && word != "")
@@ -346,6 +381,7 @@ int main() {
 			int second_opr = check_operators(line[i+1]);
 			if( second_opr != -1)
 			{
+				cout<<check_combine_operators(check_operators(line[i]),second_opr);
 				string class_part = get_class_of_operator(check_combine_operators(check_operators(line[i]),second_opr));
 				if(class_part !="N/A")
 				{
@@ -383,6 +419,10 @@ int main() {
 			}
 			
 		}
+		
+		/////////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////////
+	
 	else if(no_string && read && line[i] == '.')
 		{
 			if(word == "")
@@ -407,7 +447,7 @@ int main() {
 			{
 				if(check_keywords(word) )
 				{
-					token<<"( "<<get_keyword_class(word)<<" , "<< word <<" , "<<line_num<<" )\n";
+					token<<"( "<<datatype_class(word)<<" , "<< word <<" , "<<line_num<<" )\n";
 					word = "";
 					if(line[i+1] >='0' && line[i+1] <= '9')
 					{
@@ -453,6 +493,10 @@ int main() {
 				
 			}	
 		}
+		
+		//////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////
+		
 		else if( (line[i] == ' ' || line[i] == '\t' || line[i] == '\n' || line[i] == '\0'))   
 		{
 			if(no_string && read && word != "")
@@ -470,10 +514,16 @@ int main() {
 				}
 			}
 		}
+		/////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////
 		else           
 		{
 			word += line[i];
 		}
+		
+		////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////
+		
 	  }
 
 	 cout<<"Done!!!";
@@ -483,3 +533,19 @@ int main() {
     system(file_name.c_str());
 	return 0;
 }
+
+//dsfd654.se8.89.int a= 5.5,  9 .a,a .9,'\n' 9a.'e' 5, 9''.a 5; 20 - 11
+//int a=5.5,9.a,a.9,9a.5,9.a5; 12 - 6
+//int a= 5.5,  9 .a,a .9,'\n' 9a.'e' 5, 9''.a 5; 20 - 11
+//dfa'fd'd'f'\nf's''f 6 - 1
+// dfa'fd'd'f'\nf'sf  5 - 1
+//int a= 5.5,  9 .a,a .9,'\n' 9a.'el'l'; 5, 9''.a 5; 22 - 11
+// 'el'l' 1 - -1
+//jlds'fdsff'dfd''dfdsf"fdsf  7 - 3
+//jlds'fdsff'dfd''dfdsf"fdsf"'sas"c"cdc " dc 'dcdsvd"dvds   13 - 6
+//"ds"fs  1 - 0
+//''.a 5;  3 - 1
+//42rew432.rew
+//4w2.a
+//546.184fdtr.125
+//6.1fr.5

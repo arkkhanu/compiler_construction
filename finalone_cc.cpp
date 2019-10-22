@@ -81,7 +81,7 @@ string get_class_of_operator(int index)
 
 string get_class_of_single_operator(int index)   
 {
-	string operator_class[] = {"Add-Sub","Add-Sub","Mul","Div-Mod","Div-Mod","Asgn-Op","Not-Op","Adress-Op","Relat-Op","Relat-Op","invalid"};
+	string operator_class[] = {"Add","Sub","Mul","Div","Div-Mod","Asgn-Op","Not-Op","Adress-Op","Relat-Op","Relat-Op","invalid"};
 	
 	return operator_class[index];
 }
@@ -284,6 +284,7 @@ int main() {
 
 		else if(no_string && read && line[i] == '\'')
 		{
+			
 			if(word != "")
 			{
 				token<<"( "<<check_keyword_id_constant(word)<<" , "<< word <<" , "<<line_num<<" )\n";
@@ -291,31 +292,47 @@ int main() {
 			}
 			if(line[i+1] == '\\')
 			{
-				word = line.substr(i,4);
-				if(check_character_constant(word))
-				{
-					token<<"( Character_cons , "<< word <<" , "<<line_num<<" )\n";
-				}
-				else
-				{
+				if(line[i+2] != '\''){
+					word = line.substr(i,4);
+					if(check_character_constant(word))
+					{
+						token<<"( Character_cons , "<< word <<" , "<<line_num<<" )\n";
+					}
+					else
+					{
+						token<<"( L.E , "<< word <<" , "<<line_num<<" )\n";
+					}
+					i+=3;
+					word="";	
+				}else{
 					token<<"( L.E , "<< word <<" , "<<line_num<<" )\n";
+					i+=2;
+					word="";
 				}
-				i+=3;
-				word="";
+				
+				
 			}
 			else
 			{
-				word = line.substr(i,3);
-				if(check_character_constant(word))
-				{
-					token<<"( Character_cons , "<< word <<" , "<<line_num<<" )\n";
-				}
-				else
-				{
+				if(line[i+1] != '\''){
+					word = line.substr(i,3);
+					if(check_character_constant(word))
+					{
+						token<<"( Character_cons , "<< word <<" , "<<line_num<<" )\n";
+					}
+					else
+					{
+						token<<"( L.E , "<< word <<" , "<<line_num<<" )\n";
+					}
+					i+=2;
+					word="";
+					
+				}else{
 					token<<"( L.E , "<< word <<" , "<<line_num<<" )\n";
+					i+=1;
+					word = "";
 				}
-				i+=2;
-				word="";
+				
 			}
 		}
 		
@@ -517,5 +534,18 @@ int main() {
 	return 0;
 }
 
+//dsfd654.se8.89.int a= 5.5,  9 .a,a .9,'\n' 9a.'e' 5, 9''.a 5; 20 - 11
+//int a=5.5,9.a,a.9,9a.5,9.a5; 12 - 6
+//int a= 5.5,  9 .a,a .9,'\n' 9a.'e' 5, 9''.a 5; 20 - 11
+//dfa'fd'd'f'\nf's''f 6 - 1
+// dfa'fd'd'f'\nf'sf  5 - 1
+//int a= 5.5,  9 .a,a .9,'\n' 9a.'el'l'; 5, 9''.a 5; 22 - 11
+// 'el'l' 1 - -1
+//jlds'fdsff'dfd''dfdsf"fdsf  7 - 3
+//jlds'fdsff'dfd''dfdsf"fdsf"'sas"c"cdc " dc 'dcdsvd"dvds   13 - 6
+//"ds"fs  1 - 0
+//''.a 5;  3 - 1
+//42rew432.rew
+//4w2.a
 //546.184fdtr.125
 //6.1fr.5
