@@ -10,8 +10,8 @@ using namespace std;
 //       keywords
 //****************************************************
 bool check_keywords(string word) {
-	string keywords[] = { "struct","for","switch","main","do","while","case","if","else","break","void" };
-	for (int i = 0; i<11; i++)
+	string keywords[] = { "stop","val","jump","already","serialize","goto","list","perform","until","from","when","condition","if","but","getsize","setonce","structure","unit"};
+	for (int i = 0; i<18; i++)
 	{
 		if (word == keywords[i])
 		{
@@ -25,7 +25,7 @@ bool check_keywords(string word) {
 //****************************************************
 bool datatype_class(string word)
 {
-	string DT[] = {"int","float","string","char","bool"};
+	string DT[] = {"int","decimal","double","string","singlech","truefalse"};
 	for(int i=0;i<6;i++)
 	{
 		if(DT[i] == word)
@@ -40,7 +40,7 @@ bool datatype_class(string word)
 //****************************************************
 int check_operators(char word)
 {
-	char operators[] = { '+','-','*','/','%','=','!','&','>','<','|' };
+	char operators[] = { '+','-','*','/','%','=','!','&','>','<','|','$'};
 	for (int i = 0; i<11; i++)
 	{
 		if (word == operators[i])
@@ -57,15 +57,15 @@ int check_combine_operators(int side_1,int side_2)
 {
 	int combine_operators[11][11] = {  {1,0,0,0,0,2,0,0,0,0,0},
 									   {0,1,0,0,0,2,0,0,0,0,0},
-									   {0,0,3,9,0,2,0,0,0,0,0},
-									   {0,0,8,7,0,2,0,0,0,0,0},
+									   {0,0,0,3,0,2,0,0,0,0,0},
+									   {0,0,4,8,0,2,0,0,0,0,0},
 									   {0,0,0,0,0,2,0,0,0,0,0},
-									   {0,0,0,0,0,4,0,0,0,0,0},
-									   {0,0,0,0,0,4,0,0,0,0,0},
+									   {0,0,0,0,0,5,0,0,0,0,0},
+									   {0,0,0,0,0,5,0,0,0,0,0},
 									   {0,0,0,0,0,0,0,6,0,0,0},
-									   {0,0,0,0,0,4,0,0,0,0,0},
-									   {0,0,0,0,0,4,0,0,0,0,0},
-									   {0,0,0,0,0,0,0,0,0,0,5} };
+									   {0,0,0,0,0,5,0,0,0,0,0},
+									   {0,0,0,0,0,5,0,0,0,0,0},
+									   {0,0,0,0,0,0,0,0,0,0,7} };
 	
 	return combine_operators[side_1][side_2];
 }
@@ -74,15 +74,13 @@ int check_combine_operators(int side_1,int side_2)
 //****************************************************
 string get_class_of_operator(int index)   
 {
-	string operator_class[] = {"N/A","INC/DEC","ASGN-OP","POINTER","RELAT-OP","OR-OP","AND-OP","Single_cmt","cmt_start","cmt_end"};
-	
+	string operator_class[] = {"N/A","INC/DEC","ASSIGN-OP","COMT_END","COMT_START","RELAT-OP","AND-OP","OR-OP","Single_COMT"};
 	return operator_class[index];
 }
 
 string get_class_of_single_operator(int index)   
 {
-	string operator_class[] = {"Add","Sub","Mul","Div","Div-Mod","Asgn-Op","Not-Op","Adress-Op","Relat-Op","Relat-Op","invalid"};
-	
+	string operator_class[] = {"Add","Sub","Mul","Div","Mode","Asgn-Op","Not-Op","Adress-Op","Relat-Op","Relat-Op","invalid","Pointer"};
 	return operator_class[index];
 }
 //****************************************************
@@ -178,7 +176,7 @@ int check_constants(string word)
 //****************************************************
 int trans(int state, char ch)
 {
-	int table[6][4] = { { 1,5,5,5 },{ 5,4,2,2 },{ 3,5,5,5 },{ 5,5,5,5 },{2,2,3,2},{5,5,5,5} };
+	int table[6][4] = { { 1,5,5,5 },{ 5,4,2,2 },{ 3,5,5,5 },{ 5,5,5,5 },{2,2,2,5},{5,5,5,5} };
 
 	if (ch == '\'')
 	{
@@ -190,11 +188,11 @@ int trans(int state, char ch)
 	}
 	else if (ch == 'n' || ch == 't' || ch == 'a' || ch == 'v' || ch == 'b' || ch == 'r' || ch == 'f' || ch == '\\' || ch == '\'' || ch == '\"' )
 	{
-		return table[state][3];
+		return table[state][2];
 	}
 	else
 	{
-		return table[state][2];
+		return table[state][4];
 	}
 }
 
@@ -385,16 +383,16 @@ int main() {
 				string class_part = get_class_of_operator(check_combine_operators(check_operators(line[i]),second_opr));
 				if(class_part !="N/A")
 				{
-					if(read && class_part == "Single_cmt")
+					if(read && class_part == "Single_COMT")
 					{
 						i= line.length()-1;
 					}
-					else if(read && class_part == "cmt_start")
+					else if(read && class_part == "COMT_START")
 					{
 						read = false;
 						word="";
 					}
-					else if(class_part == "cmt_end")
+					else if(class_part == "COMT_END")
 					{
 						read = true;
 						word="";
