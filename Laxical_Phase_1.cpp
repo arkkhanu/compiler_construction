@@ -4,8 +4,6 @@
 #include<stdlib.h>
 using namespace std;
 
-//void int main() 'sd'g'
-
 //****************************************************
 //       keywords
 //****************************************************
@@ -53,7 +51,7 @@ bool datatype_class(string word)
 int check_operators(char word)
 {
 	char operators[] = { '+','-','*','/','%','=','!','&','>','<','|','$'};
-	for (int i = 0; i<11; i++)
+	for (int i = 0; i<12; i++)
 	{
 		if (word == operators[i])
 		{
@@ -70,7 +68,7 @@ int check_combine_operators(int side_1,int side_2)
 	int combine_operators[11][11] = {  {1,0,0,0,0,2,0,0,0,0,0},
 									   {0,1,0,0,0,2,0,0,0,0,0},
 									   {0,0,0,3,0,2,0,0,0,0,0},
-									   {0,0,4,8,0,2,0,0,0,0,0},
+									   {0,0,4,6,0,2,0,0,0,0,0},
 									   {0,0,0,0,0,2,0,0,0,0,0},
 									   {0,0,0,0,0,5,0,0,0,0,0},
 									   {0,0,0,0,0,5,0,0,0,0,0},
@@ -95,20 +93,27 @@ string get_class_of_single_operator(int index)
 	string operator_class[] = {"Add","Sub","Mul","Div","Mode","Asgn-Op","Not-Op","Adress-Op","Relat-Op","Relat-Op","invalid","Pointer"};
 	return operator_class[index];
 }
+
 //****************************************************
-//       punctuators
+//     Converting a Single Character to a String
 //****************************************************
-bool check_punctuators(char word)
+
+string toString(char x) 
+{  
+    string s(1, x); 
+    return s;    
+} 
+string check_punctuators(char word)
 {
 	char punctuators[] = { '(',')','[',']','{','}',';',':',',' };
 	for (int i = 0; i<9; i++)
 	{
 		if (word == punctuators[i])
 		{
-			return true;
+			return toString(word);
 		}
 	}
-	return false;
+	return "L.E";
 }
 //****************************************************
 //       identifiers
@@ -188,7 +193,7 @@ int check_constants(string word)
 //****************************************************
 int trans(int state, char ch)
 {
-	int table[6][4] = { { 1,5,5,5 },{ 5,4,2,2 },{ 3,5,5,5 },{ 5,5,5,5 },{2,2,2,5},{5,5,5,5} };
+	int table[6][4] = { { 1,5,5,5 },{ 5,4,2,2 },{ 3,5,5,5 },{ 5,5,5,5 },{2,2,3,2},{5,5,5,5} };
 
 	if (ch == '\'')
 	{
@@ -256,14 +261,7 @@ string check_keyword_id_constant(string word)
 			return "L.E";
 		}
 }
-//****************************************************
-//     Converting a Single Character to a String
-//****************************************************
-string toString(char x) 
-{  
-    string s(1, x); 
-    return s;    
-} 
+
 //****************************************************
 //       main body
 //****************************************************
@@ -272,26 +270,35 @@ int main() {
 	string line = "", word = "";
 	int line_num=0;
 	bool read = true, no_string = true;
+	string file_name_1 = "Input_File.txt";
+	system(file_name_1.c_str());
 	fstream infile;
 	ofstream token;
-	token.open("Token.txt" , ios::out);
-		cout<<"Enter code : \n";
-		getline(cin,line);  //
 	
-      for (int i = 0; i <= line.length(); i++)
+	token.open("Token.txt" , ios::out);
+	infile.open("Input_File.txt");
+	
+	if(!infile){
+		cout<<"Unable to open File...!";
+	}
+	else{
+		while(!infile.eof()){
+			getline(infile,line);
+			line_num++;
+			for (int i = 0; i <= line.length(); i++)
 	  {
 	  
 	  ///////////////////////////////////////////////
 	  ///////////////////////////////////////////////
 	  	
-		if(no_string && read && check_punctuators(line[i]))           
+		if(no_string && read && check_punctuators(line[i])!="L.E")           
 		{
 			if(word != "")
 			{
 				token<<"( "<<check_keyword_id_constant(word)<<" , "<< word <<" , "<<line_num<<" )\n";
 				word = "";
 			}
-			token<<"( Punctuator , "<< toString(line[i]) <<" , "<<line_num<<" )\n";
+			token<<"( "<<toString(line[i])<<" , "<< toString(line[i]) <<" , "<<line_num<<" )\n";
 		}
 		
 		//////////////////////////////////////////////////
@@ -300,7 +307,6 @@ int main() {
 
 		else if(no_string && read && line[i] == '\'')
 		{
-			
 			if(word != "")
 			{
 				token<<"( "<<check_keyword_id_constant(word)<<" , "<< word <<" , "<<line_num<<" )\n";
@@ -308,47 +314,31 @@ int main() {
 			}
 			if(line[i+1] == '\\')
 			{
-				if(line[i+2] != '\''){
-					word = line.substr(i,4);
-					if(check_character_constant(word))
-					{
-						token<<"( Character_cons , "<< word <<" , "<<line_num<<" )\n";
-					}
-					else
-					{
-						token<<"( L.E , "<< word <<" , "<<line_num<<" )\n";
-					}
-					i+=3;
-					word="";	
-				}else{
-					token<<"( L.E , "<< word <<" , "<<line_num<<" )\n";
-					i+=2;
-					word="";
+				word = line.substr(i,4);
+				if(check_character_constant(word))
+				{
+					token<<"( Character_cons , "<< word <<" , "<<line_num<<" )\n";
 				}
-				
-				
+				else
+				{
+					token<<"( L.E , "<< word <<" , "<<line_num<<" )\n";
+				}
+				i+=3;
+				word="";
 			}
 			else
 			{
-				if(line[i+1] != '\''){
-					word = line.substr(i,3);
-					if(check_character_constant(word))
-					{
-						token<<"( Character_cons , "<< word <<" , "<<line_num<<" )\n";
-					}
-					else
-					{
-						token<<"( L.E , "<< word <<" , "<<line_num<<" )\n";
-					}
-					i+=2;
-					word="";
-					
-				}else{
-					token<<"( L.E , "<< word <<" , "<<line_num<<" )\n";
-					i+=1;
-					word = "";
+				word = line.substr(i,3);
+				if(check_character_constant(word))
+				{
+					token<<"( Character_cons , "<< word <<" , "<<line_num<<" )\n";
 				}
-				
+				else
+				{
+					token<<"( L.E , "<< word <<" , "<<line_num<<" )\n";
+				}
+				i+=2;
+				word="";
 			}
 		}
 		
@@ -397,7 +387,6 @@ int main() {
 			int second_opr = check_operators(line[i+1]);
 			if( second_opr != -1)
 			{
-				cout<<check_combine_operators(check_operators(line[i]),second_opr);
 				string class_part = get_class_of_operator(check_combine_operators(check_operators(line[i]),second_opr));
 				if(class_part !="N/A")
 				{
@@ -449,7 +438,7 @@ int main() {
 				}
 				else
 				{
-					token<<"( Dot , "<< toString(line[i]) <<" , "<<line_num<<" )\n";
+					token<<"( . , "<< toString(line[i]) <<" , "<<line_num<<" )\n";
 					word = "";
 				}
 			}
@@ -471,7 +460,7 @@ int main() {
 					}
 					else
 					{
-						token<<"( Dot , "<< toString(line[i]) <<" , "<<line_num<<" )\n";
+						token<<"( . , "<< toString(line[i]) <<" , "<<line_num<<" )\n";
 					}
 				}
 				else if(check_identifiers(word) == 1)
@@ -484,7 +473,7 @@ int main() {
 					}
 					else
 					{
-						token<<"( dot , "<< toString(line[i]) <<" , "<<line_num<<" )\n";
+						token<<"( . , "<< toString(line[i]) <<" , "<<line_num<<" )\n";
 					}
 				}
 				else if(check_constants(word) == 2 )
@@ -497,8 +486,12 @@ int main() {
 					{
 						token<<"( Integer_Const , "<< word <<" , "<<line_num<<" )\n";
 						word = "";
-						token<<"( Dot , "<< toString(line[i]) <<" , "<<line_num<<" )\n";
+						token<<"( . , "<< toString(line[i]) <<" , "<<line_num<<" )\n";
 					}
+				}
+				else if(check_identifiers(word) == 2)
+				{
+					word +=line[i];
 				}
 				else
 				{
@@ -541,9 +534,15 @@ int main() {
 		////////////////////////////////////////////////////////////
 		
 	  }
+		}
+		cout<<"Done!!!";
+	}	
+	  
 
-	 cout<<"Done!!!";
 
+	 
+
+    infile.close();
     token.close();
     string file_name = "Token.txt";
     system(file_name.c_str());
