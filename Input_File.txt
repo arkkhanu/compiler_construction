@@ -1,6 +1,7 @@
 start{
 int 12.3, 12s.3, 12.s3, a.7, 4..
 word 'sd'r''\v''\nry
+''w
 "fdfff
 /* fgifd
 bdjfhglfd
