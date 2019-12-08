@@ -20,8 +20,8 @@ bool check_AND_OR_NOT(string word){
 }
 
 bool check_keywords(string word) {
-	string keywords[] = { "stop","val","jump","already","serialize","goto","list","perform","until","from","when","condition","if","but","getsize","setonce","structure","unit","output"};
-	for (int i = 0; i<19; i++)
+	string keywords[] = { "stop","val","jump","already","serialize","goto","list","perform","until","from","when","condition","if","but","getsize","setonce","structure","unit"};
+	for (int i = 0; i<18; i++)
 	{
 		if (word == keywords[i])
 		{
@@ -50,7 +50,7 @@ bool datatype_class(string word)
 //****************************************************
 int check_operators(char word)
 {
-	char operators[] = { '+','-','*','/','%','=','!','&','>','<','|','$'};
+	char operators[] = { '+','-','*','/','%','=','!','&','>','<','|','^'};
 	for (int i = 0; i<12; i++)
 	{
 		if (word == operators[i])
@@ -535,7 +535,7 @@ int main() {
 		
 	  }
 		}
-		token<<"( @ , @ , "<<++line_num<<" )"; //end of file token
+		token<<"( $ , $ , "<<++line_num<<" )"; //end of file token
 		cout<<"Done!!!";
 	}	
 	  
