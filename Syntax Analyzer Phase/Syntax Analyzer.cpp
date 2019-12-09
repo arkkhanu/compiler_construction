@@ -172,7 +172,7 @@ bool MAIN_CFG() {
 						OnGoing = OnGoing->next;
 						if (OnGoing->CP == "{") {
 							OnGoing = OnGoing->next;
-							if (DECLARATION_CFG()) /* Here Code Start */
+							if (Function_CFG()) /* Here Code Start */
 							{
 								OnGoing = OnGoing->next;
 								if (OnGoing->CP == "}") {
@@ -194,7 +194,7 @@ bool MAIN_CFG() {
 /* Function CFG Start */
 
 bool Function_CFG() {
-	if (OnGoing->CP == "Fun") {
+	if (OnGoing->CP == "fun") {
 		OnGoing = OnGoing->next;
 		if (OnGoing->CP == "ID") {
 			OnGoing = OnGoing->next;
@@ -225,20 +225,26 @@ bool Function_CFG() {
 }
 
 bool PARA_FUN_CFG() {				///////// work here for para declating
-//	if(){
-//		return true;
-//	}
-//	else if(OnGoing->CP == ")"){
-//		return true;
-//	}
-	return true;
+	if (DECLARATION_CFG()) {
+		return true;
+	}
+	else if (OnGoing->CP == ")") {  ///  Decrement in pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
 }
 
 bool BODY_FUN_CFG() {
 	if (MUL_FUN_CFG()) {
 		return true;
 	}
-	else if (OnGoing->CP == ":") {
+	else if (OnGoing->CP == ":") { // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
 		return true;
 	}
 	return false;
@@ -251,14 +257,20 @@ bool MUL_FUN_CFG() {
 			return true;
 		}
 	}
-	else if (OnGoing->CP == ":") {
+	else if (OnGoing->CP == ":") { // Decrement Pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
 		return true;
 	}
 	return false;
 }
 
 bool SIL_FUN_CFG() {         ///////////////////////// for single statement
-	return true;
+	if (DECLARATION_CFG()) {
+		return true;
+	}
+	return false;
 }
 
 bool CONST_CFG() {			///////////////////////// Work there for constant 
@@ -346,7 +358,6 @@ bool LIST_DEC_CFG() {
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		int _dec_;
 		return true;
 	}
 	return false;
@@ -355,7 +366,13 @@ bool LIST_DEC_CFG() {
 bool INIT_DEC_CFG() {
 	if (OnGoing->CP == "=") {
 		OnGoing = OnGoing->next;
-		if (CONST_CFG()) { // Expr
+		if (A_DEC_EX_CFG()) { // Expr
+			return true;
+		}
+		else if (OnGoing->CP == ";" || OnGoing->CP == "," || OnGoing->CP == "$") {  // decrement in pointer here
+			Lex_An* temp1 = OnGoing;
+			OnGoing = temp1->prev;
+			OnGoing->next = temp1;
 			return true;
 		}
 	}
@@ -363,7 +380,6 @@ bool INIT_DEC_CFG() {
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		int _dec_;
 		return true;
 	}
 	return false;
@@ -379,11 +395,10 @@ bool ARR_DEC_CFG() {
 			}
 		}
 	}
-	else if (OnGoing->CP == "=" || OnGoing->CP == "$") {  // decrement in pointer here
+	else if (OnGoing->CP == "=" || OnGoing->CP == "$" || OnGoing->CP == ";" || OnGoing->CP == ",") {  // decrement in pointer here
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		int _dec_;
 		return true;
 	}
 	return false;
@@ -397,7 +412,6 @@ bool SIZE_DEC_CFG() {
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		int _dec_;
 		return true;
 	}
 	return false;
@@ -427,12 +441,9 @@ bool PTR_DEC_CFG() {
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		//		delete temp1;
-		int _dec_;
-
 		return true;
 	}
-	return true;
+	return false;
 }
 
 bool FUN_DEC_CFG() {
@@ -449,7 +460,6 @@ bool FUN_DEC_CFG() {
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		int _dec_;
 		return true;
 	}
 	return false;
@@ -462,11 +472,13 @@ bool A_DEC_EX_CFG() {
 			return true;
 		}
 	}
-	else if (OnGoing->CP == "]" || OnGoing->CP == "$" || OnGoing->CP == ":" || OnGoing->CP == ",") { // decrement in pointer here
+	else if (OnGoing->CP == "]" || OnGoing->CP == "$" || OnGoing->CP == ":" || OnGoing->CP == "," || OnGoing->CP == "ID"
+		|| OnGoing->CP == "Int_Const" || OnGoing->CP == "Decimal_Const" || OnGoing->CP == "Char_Const" || OnGoing->CP == "String_Const"
+		|| OnGoing->CP == "INCDEC" || OnGoing->CP == "ADDSUB" || OnGoing->CP == "DIVMUL" || OnGoing->CP == "!" || OnGoing->CP == "^"
+		|| OnGoing->CP == ")") { // decrement in pointer here
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		int _dec_;
 		return true;
 	}
 	return false;
@@ -482,11 +494,13 @@ bool A_1_DEC_EX_CFG() {
 			}
 		}
 	}
-	else if (OnGoing->CP == "$") {  // decrement in pointer here
+	else if (OnGoing->CP == "]" || OnGoing->CP == "$" || OnGoing->CP == ":" || OnGoing->CP == "," || OnGoing->CP == "ID"
+		|| OnGoing->CP == "Int_Const" || OnGoing->CP == "Decimal_Const" || OnGoing->CP == "Char_Const" || OnGoing->CP == "String_Const"
+		|| OnGoing->CP == "INCDEC" || OnGoing->CP == "ADDSUB" || OnGoing->CP == "DIVMUL" || OnGoing->CP == "!" || OnGoing->CP == "^"
+		|| OnGoing->CP == ")") {  // decrement in pointer here
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		int _dec_;
 		return true;
 	}
 	return false;
@@ -503,7 +517,6 @@ bool B_DEC_EX_CFG() {
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		int _dec_;
 		return true;
 	}
 	return false;
@@ -523,7 +536,6 @@ bool B_1_DEC_EX_CFG() {
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		int _dec_;
 		return true;
 	}
 	return false;
@@ -561,14 +573,13 @@ bool C_DEC_EX_CFG() {
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		int _dec_;
 		return true;
 	}
 	return false;
 }
 
 bool C_1_DEC_EX_CFG() {
-	if (OnGoing->CP == "INCEDEC") {
+	if (OnGoing->CP == "INCDEC") {
 		return true;
 	}
 	else if (OnGoing->CP == "(") {
@@ -599,7 +610,6 @@ bool C_1_DEC_EX_CFG() {
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		int _dec_;
 		return true;
 	}
 	return false;
@@ -625,7 +635,6 @@ bool ARGS_DEC_EX_CFG() {
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		int _dec_;
 		return true;
 	}
 	return false;
@@ -642,7 +651,6 @@ bool DOT_DEC_EX_CFG() {
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		int _dec_;
 		return true;
 	}
 	return false;
@@ -681,7 +689,6 @@ bool DOT_2_DEC_EX_CFG() {
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		int _dec_;
 		return true;
 	}
 	return false;
@@ -704,7 +711,6 @@ bool M_ASS_DEC_EX_CFG() {
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
-		int _dec_;
 		return true;
 	}
 	return false;
@@ -738,4 +744,5 @@ bool M_ASS_DEC_EX_CFG() {
 
 /* Function CFG Start */
 /* Function CFG END */
+
 
