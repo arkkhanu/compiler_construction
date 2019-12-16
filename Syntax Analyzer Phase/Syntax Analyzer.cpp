@@ -317,6 +317,9 @@ bool FUNCTION_CFG() {
 								}
 							}
 						}
+						else if(OnGoing->CP == ";"){
+							return true;
+						}
 					}
 				}
 			}
