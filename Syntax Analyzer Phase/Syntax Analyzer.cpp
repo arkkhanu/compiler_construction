@@ -48,8 +48,7 @@ bool BEFORE_CALLING_MAIN();
 // Function Calling //
 bool FUNTION_CALL_CFG();
 bool ARGS_FUN_CALL_CFG();
-bool ARRAY_FUN_CALL_CFG();
-bool MULTIARRAY_FUN_CALL_CFG();
+bool ARGS_1_FUN_CALL_CFG();
 
 // Declarartion //
 bool DECLARATION_CFG();
@@ -278,6 +277,9 @@ bool MAIN_CFG() {
 									goto label_2;
 								}
 							}
+							else if (OnGoing->CP == "}"){
+								return true;
+							}
 						}
 					}
 				}
@@ -366,7 +368,7 @@ bool M_ST_FUN_CFG() {
 }
 
 bool S_ST_GLOBAL_CFG() {         ///////////////////////// for single statement
-	if (DECLARATION_CFG() || UNTIL_LOOP_CFG() || PERFORM_UNTIL_LOOP_CFG() || WHEN_CFG()  || IF_BUT_CFG() || EXP_A_EXP()) {
+	if (DECLARATION_CFG() || UNTIL_LOOP_CFG() || PERFORM_UNTIL_LOOP_CFG() || WHEN_CFG()  || IF_BUT_CFG() || EXP_A_EXP() || FROM_CFG() ) {
 		return true;
 	}
 	return false;
@@ -705,6 +707,9 @@ bool C_1_DEC_EX_CFG() {
 	else if (DOT_DEC_EX_CFG()) {
 		return true;
 	}
+	else if(A_DEC_EX_CFG()){
+		return true;
+	}
 	else if (OnGoing->CP == "ADDSUB" || OnGoing->CP == "$") {  // decrement in pointer here
 //		Lex_An* temp1 = OnGoing;
 //		OnGoing = temp1->prev;
@@ -942,12 +947,12 @@ bool EXP_A_EXP(){
 		if(A_1_EXP()){
 			return true;
 		}
-//		else if(OnGoing->CP == "$" || OnGoing->CP == ")"){ // decrement pointer
-//			Lex_An* temp1 = OnGoing;
-//			OnGoing = temp1->prev;
-//			OnGoing->next = temp1;
-//			return true;
-//		}
+		else if(OnGoing->CP == "$" || OnGoing->CP == ")"){ // decrement pointer
+			Lex_An* temp1 = OnGoing;
+			OnGoing = temp1->prev;
+			OnGoing->next = temp1;
+			return true;
+		}
 	}
 	else if(OnGoing->CP == "$" || OnGoing->CP == ")"){ // decrement pointer
 		Lex_An* temp1 = OnGoing;
@@ -1364,11 +1369,11 @@ bool FUNTION_CALL_CFG(){
 }
 
 bool ARGS_FUN_CALL_CFG(){
-	if(ARRAY_FUN_CALL_CFG()){
-		return true;
-	}
-	else if (MULTIARRAY_FUN_CALL_CFG()){
-		return true;
+	if(EXP_A_EXP()){
+		OnGoing = OnGoing->next;
+		if(ARGS_1_FUN_CALL_CFG()){
+			return true;
+		}
 	}
 	else if(OnGoing->CP == ")"){ // decrement pointer
 		Lex_An* temp1 = OnGoing;
@@ -1379,42 +1384,17 @@ bool ARGS_FUN_CALL_CFG(){
 	return false;
 }
 
-bool ARRAY_FUN_CALL_CFG(){
-	if(OnGoing->CP == "["){
+bool ARGS_1_FUN_CALL_CFG(){
+	if(OnGoing->CP == ","){
 		OnGoing = OnGoing->next;
 		if(EXP_A_EXP()){
 			OnGoing = OnGoing->next;
-			if(OnGoing->CP == "]"){
-				OnGoing = OnGoing->next;
-				if(ARRAY_FUN_CALL_CFG()){
-					return true;
-				}
+			if(ARGS_1_FUN_CALL_CFG()){
+				return true;
 			}
 		}
 	}
 	else if(OnGoing->CP == ")" ){ // decrement pointer
-		Lex_An* temp1 = OnGoing;
-		OnGoing = temp1->prev;
-		OnGoing->next = temp1;
-		return true;
-	}
-	return false;
-}
-
-bool MULTIARRAY_FUN_CALL_CFG(){
-	if(OnGoing->CP == "["){
-		OnGoing = OnGoing->next;
-		if(EXP_A_EXP()){
-			OnGoing = OnGoing->next;
-			if(OnGoing->CP == "]"){
-				OnGoing = OnGoing->next;
-				if(MULTIARRAY_FUN_CALL_CFG()){
-					return true;
-				}
-			}
-		}
-	}
-	else if(OnGoing->CP == ")"){ // decrement pointer
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
 		OnGoing->next = temp1;
