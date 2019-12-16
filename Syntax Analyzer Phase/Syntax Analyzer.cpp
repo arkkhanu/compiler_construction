@@ -42,6 +42,9 @@ bool M_ST_FUN_CFG();
 // Global Single Statement CFG()
 bool S_ST_GLOBAL_CFG();  // Bunch of code should be here in all S_ST_CFG
 
+// Before Calling Main
+bool BEFORE_CALLING_MAIN(); 
+
 // Function Calling //
 bool FUNTION_CALL_CFG();
 bool ARGS_FUN_CALL_CFG();
@@ -114,6 +117,17 @@ bool BODY_IF_CFG();
 bool O_BUT_IF_CFG();
 bool BUT_IF_CFG();
 bool M_ST_IF_CFG();
+
+//	Structrue
+bool STRUCTURE_CFG();
+bool BODY_STRUC_CFG();
+bool M_ST_STRUC_CFG();
+bool S_ST_STRUC_CFG();
+bool S_ST_1_STRUC_CFG();
+bool X_1_S_ST_1_STRUC_CFG();
+bool OBJ_STRUC_CFG();
+bool INIT_STRUC_CFG();
+
  
 int main() {
 
@@ -210,13 +224,23 @@ void Display() {
 	}
 }
 
+bool BEFORE_CALLING_MAIN(){
+	if(STRUCTURE_CFG() || FUNTION_CALL_CFG() || DECLARATION_CFG()){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
 
 bool MAIN_CFG() {
 	if (!isEmpty()) {
 		OnGoing = head;
 //		Function and declaration here 
-		if(FUNCTION_CFG() || DECLARATION_CFG() ){
-			return true;
+		label_1:
+		if(BEFORE_CALLING_MAIN() && OnGoing->CP != "void"){
+			OnGoing = OnGoing->next;
+			goto label_1;
 		}
 		if (OnGoing->CP == "void") {
 			OnGoing = OnGoing->next;
@@ -229,7 +253,7 @@ bool MAIN_CFG() {
 						if (OnGoing->CP == "{") {	
 							OnGoing = OnGoing->next;
 							bool found = false;
-							label_1:
+							label_2:
 							if (/*DECLARATION_CFG() || PERFORM_UNTIL_LOOP_CFG() || UNTIL_LOOP_CFG() || FUNTION_CALL_CFG()*/
 							FUNTION_CALL_CFG() || S_ST_GLOBAL_CFG()
 							) /* coding Here Code Start */
@@ -244,7 +268,7 @@ bool MAIN_CFG() {
 								}
 								else{
 									
-									goto label_1;
+									goto label_2;
 								}
 							}
 						}
@@ -1655,7 +1679,149 @@ bool M_ST_IF_CFG(){
 /* IF BUT CFG END */
 
 
-/* Function CFG Start */
-/* Function CFG END */
 
+/* Structure CFG Start */
+
+bool STRUCTURE_CFG(){
+	if(OnGoing->CP == "struct"){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == "ID"){
+			OnGoing = OnGoing->next;
+			if(BODY_STRUC_CFG()){
+				OnGoing = OnGoing->next;
+				if(OBJ_STRUC_CFG()){
+					return true;
+				}
+			}
+		}
+	}
+	else if(OnGoing->CP == "$"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool BODY_STRUC_CFG(){
+	if(OnGoing->CP == "{"){
+		OnGoing = OnGoing->next;
+		if(M_ST_STRUC_CFG()){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == "}"){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == "ID" || OnGoing->CP == ";"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool M_ST_STRUC_CFG(){
+	if(S_ST_STRUC_CFG()){
+		OnGoing = OnGoing->next;
+		if(M_ST_STRUC_CFG()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == "}"){ // decrement pointer
+		Lex_An* temp1 = OnGoing;
+		OnGoing = temp1->prev;
+		OnGoing->next = temp1;
+		return true;
+	}
+	return false;
+}
+
+bool S_ST_STRUC_CFG(){
+	if(DECLARATION_CFG()){
+		return true;
+	}
+	else if(OnGoing->CP == "ID"){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == "^"){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == "ID"){
+				OnGoing = OnGoing->next;
+				if(S_ST_1_STRUC_CFG()){
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool S_ST_1_STRUC_CFG(){
+	if(OnGoing->CP == ";"){
+		return true;
+	}
+	else if(OnGoing->CP == "["){
+		OnGoing = OnGoing->next;
+		if(X_1_S_ST_1_STRUC_CFG()){
+			OnGoing = OnGoing->next;
+			if(OnGoing->CP == "]"){
+				OnGoing = OnGoing->next;
+				if(OnGoing->CP == ";"){
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool X_1_S_ST_1_STRUC_CFG(){
+	if(OnGoing->CP == "ID"){
+		return true;
+	}
+	else if(OnGoing->CP == "Int_Const"){
+		return true;
+	}
+	return false;
+}
+
+bool OBJ_STRUC_CFG(){
+	if(OnGoing->CP == "ID"){
+		OnGoing = OnGoing->next;
+		if(INIT_STRUC_CFG()){
+			return true;
+		}
+	}
+	else if(OnGoing->CP == ";"){
+		return true;
+	}
+}
+
+bool INIT_STRUC_CFG(){
+	if(OnGoing->CP == ","){
+		OnGoing = OnGoing->next;
+		if(OnGoing->CP == "ID"){
+			OnGoing = OnGoing->next;
+			if(INIT_STRUC_CFG()){
+				return true;
+			}
+		}
+	}
+	else if(OnGoing->CP == ";"){
+		return true;
+	}
+	return false;
+}
+
+/* Structure CFG END */
+
+
+/* Function CFG Start */
+
+/* Function CFG END */
+/* Function CFG Start */
+
+/* Function CFG END */
 

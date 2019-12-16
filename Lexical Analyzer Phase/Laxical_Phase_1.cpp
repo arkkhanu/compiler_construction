@@ -20,8 +20,8 @@ bool check_AND_OR_NOT(string word){
 }
 
 bool check_keywords(string word) {
-	string keywords[] = { "main","fun","void","jump","already","serialize","goto","list","perform","until","from","when","condition","if","but","getsize","setonce","structure","unit"};
-	for (int i = 0; i<19; i++)
+	string keywords[] = { "main","fun","void","jump","already","serialize","goto","list","perform","until","from","when","condition","if","but","getsize","setonce","struct","unit","range"};
+	for (int i = 0; i<20; i++)
 	{
 		if (word == keywords[i])
 		{
