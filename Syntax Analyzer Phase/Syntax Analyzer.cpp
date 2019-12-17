@@ -361,6 +361,9 @@ bool M_ST_FUN_CFG() {
 			return true;
 		}
 	}
+	else if(OnGoing->CP == ";"){
+		return true;
+	}
 	else if (OnGoing->CP == ":") { // Decrement Pointer
 		Lex_An* temp1 = OnGoing;
 		OnGoing = temp1->prev;
@@ -371,7 +374,7 @@ bool M_ST_FUN_CFG() {
 }
 
 bool S_ST_GLOBAL_CFG() {         ///////////////////////// for single statement
-	if (DECLARATION_CFG() || UNTIL_LOOP_CFG() || PERFORM_UNTIL_LOOP_CFG() || WHEN_CFG()  || IF_BUT_CFG() || EXP_A_EXP() || FROM_CFG() ) {
+	if (  EXP_A_EXP() || DECLARATION_CFG() || UNTIL_LOOP_CFG() || PERFORM_UNTIL_LOOP_CFG() || WHEN_CFG()  || IF_BUT_CFG() || FROM_CFG() ) {
 		return true;
 	}
 	return false;
@@ -432,6 +435,9 @@ bool DECLARATION_CFG() {
 					if (INIT_DEC_CFG()) {
 						OnGoing = OnGoing->next;
 						if (LIST_DEC_CFG()) {
+							return true;
+						}
+						else if(DECLARATION_CFG()){
 							return true;
 						}
 					}
@@ -964,7 +970,7 @@ bool EXP_A_EXP(){
 		return true;
 	}
 	else if(OnGoing->CP == ";"){
-		OnGoing = OnGoing->next;
+//		OnGoing = OnGoing->next;
 		return true;
 	}
 	return false;
@@ -1179,6 +1185,16 @@ bool F_1_EXP(){
 	if(OnGoing->CP == "INCDEC"){
 		return true;
 	}
+	else if(OnGoing->CP==",")
+	{
+		OnGoing=OnGoing->next;
+		if(F_EXP())
+		{
+			OnGoing=OnGoing->next;
+			if(OnGoing->CP==")")
+			return true;
+		}
+	}
 	else if(OnGoing->CP == "("){
 		OnGoing = OnGoing->next;
 		if(ARGS_EXP()){
@@ -1211,6 +1227,13 @@ bool F_1_EXP(){
 				}
 			}
 		}
+	}
+	else if(OnGoing->CP == "="){
+		OnGoing = OnGoing->next;
+		if(EXP_A_EXP()){
+			return true;
+		}
+		
 	}
 	else if(OnGoing->CP == "DIVMUL" || OnGoing->CP == "$"){ // decrement pointer
 		Lex_An* temp1 = OnGoing;
