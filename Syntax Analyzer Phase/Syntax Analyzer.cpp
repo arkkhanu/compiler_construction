@@ -434,6 +434,9 @@ bool DECLARATION_CFG() {
 						if (LIST_DEC_CFG()) {
 							return true;
 						}
+						else if(DECLARATION_CFG()){
+							return true;
+						}
 					}
 				}
 			}
@@ -1178,6 +1181,16 @@ bool F_EXP(){
 bool F_1_EXP(){
 	if(OnGoing->CP == "INCDEC"){
 		return true;
+	}
+	else if(OnGoing->CP==",")
+	{
+		OnGoing=OnGoing->next;
+		if(F_EXP())
+		{
+			OnGoing=OnGoing->next;
+			if(OnGoing->CP==")")
+			return true;
+		}
 	}
 	else if(OnGoing->CP == "("){
 		OnGoing = OnGoing->next;
